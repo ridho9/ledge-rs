@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbe:messageSchema xmlns:sbe="http://fixprotocol.io/2016/sbe"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    package="ledger.messages"
+    id="1"
+    version="0"
+    semanticVersion="5.2"
+    description="Example base schema which can be extended."
+    byteOrder="littleEndian">
+    <types>
+        <composite name="messageHeader"
+            description="Message identifiers and length of message root.">
+            <type name="blockLength" primitiveType="uint16" />
+            <type name="templateId" primitiveType="uint16" />
+            <type name="schemaId" primitiveType="uint16" />
+            <type name="version" primitiveType="uint16" />
+        </composite>
+        <composite name="varStringEncoding" description="Variable length UTF-8 String.">
+            <type name="length" primitiveType="uint32" maxValue="1073741824" />
+            <type name="varData" primitiveType="uint8" length="0" characterEncoding="UTF-8" />
+        </composite>
+
+        <type name="TransactionId" primitiveType="uint64" semanticType="int" />
+        <type name="AccountId" primitiveType="uint64" semanticType="int" />
+        <type name="Timestamp" primitiveType="uint64" semanticType="UTCTimestamp" />
+        <type name="Amount" primitiveType="int64" semanticType="Money" />
+
+        <enum name="ResponseCode" encodingType="uint8">
+            <validValue name="OK">0</validValue>
+            <validValue name="ERROR">1</validValue>
+        </enum>
+    </types>
+
+    <sbe:message name="PostTransaction" id="1" description="PostTransaction">
+        <field name="transactionId" id="1" type="TransactionId" />
+        <field name="accountId" id="2" type="AccountId" />
+        <field name="timestamp" id="3" type="Timestamp" />
+        <field name="amount" id="4" type="Amount" />
+    </sbe:message>
+
+    <sbe:message name="CommandResponse" id="2" description="CommandResponse">
+        <field name="responseCode" id="1" type="ResponseCode" />
+        <data name="errorMessage" id="2" type="varStringEncoding" semanticType="String" />
+    </sbe:message>
+</sbe:messageSchema>
