@@ -1,0 +1,10 @@
+[package]
+name = "ledger_messages"
+version = "0.1.0"
+authors = ["sbetool"]
+description = "Example base schema which can be extended."
+edition = "2021"
+
+[lib]
+name = "ledger_messages"
+path = "src/lib.rs"

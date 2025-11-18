@@ -15,5 +15,3 @@ devenv.local.yaml
 /target
 
 .env
-
-ledger_messages
