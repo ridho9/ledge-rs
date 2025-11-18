@@ -5,6 +5,8 @@
   ...
 }:
 {
+  cachix.enable = false;
+
   packages = [
     pkgs.openssl
     pkgs.pkg-config
@@ -26,4 +28,5 @@
   };
 
   dotenv.disableHint = true;
+
 }

@@ -4,3 +4,5 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+ledger_messages = { path = "../ledger_messages" }
+zmq = "0.10.0"
