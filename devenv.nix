@@ -10,6 +10,7 @@
   packages = [
     pkgs.openssl
     pkgs.pkg-config
+    pkgs.cmakeMinimal
   ];
 
   languages.rust.enable = true;

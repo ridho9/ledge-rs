@@ -31,7 +31,7 @@
         </enum>
     </types>
 
-    <sbe:message name="PostTransaction" id="1" description="PostTransaction">
+    <sbe:message name="PostTransaction" id="1" description="PostTransaction command">
         <field name="transactionId" id="1" type="TransactionId" />
         <field name="accountId" id="2" type="AccountId" />
         <field name="timestamp" id="3" type="Timestamp" />
@@ -41,5 +41,13 @@
     <sbe:message name="CommandResponse" id="2" description="CommandResponse">
         <field name="responseCode" id="1" type="ResponseCode" />
         <data name="errorMessage" id="2" type="varStringEncoding" semanticType="String" />
+    </sbe:message>
+
+    <sbe:message name="TransactionPosted" id="3"
+        description="Event: A transaction has been accepted">
+        <field name="transactionId" id="1" type="TransactionId" />
+        <field name="accountId" id="2" type="AccountId" />
+        <field name="timestamp" id="3" type="Timestamp" />
+        <field name="amount" id="4" type="Amount" />
     </sbe:message>
 </sbe:messageSchema>

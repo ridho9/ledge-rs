@@ -11,6 +11,7 @@ pub mod decimal_codec;
 pub mod message_header_codec;
 pub mod post_transaction_codec;
 pub mod response_code;
+pub mod transaction_posted_codec;
 pub mod var_string_encoding_codec;
 
 pub const SBE_SCHEMA_ID: u16 = 1;
