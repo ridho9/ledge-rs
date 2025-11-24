@@ -7,7 +7,9 @@ edition = "2024"
 anyhow = "1.0.100"
 axum = "0.8.7"
 dotenvy = "0.15.7"
+rdkafka = { version = "0.38.0", features = ["cmake-build"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
 sqlx = { version = "0.8.6", features = ["runtime-tokio", "postgres", "macros"] }
 tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread"] }
+ledger_messages = { path = "../ledger_messages" }

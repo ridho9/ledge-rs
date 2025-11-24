@@ -80,6 +80,8 @@ dependencies = [
  "anyhow",
  "axum",
  "dotenvy",
+ "ledger_messages",
+ "rdkafka",
  "serde",
  "serde_json",
  "sqlx",
