@@ -42,6 +42,20 @@ async fn main() -> Result<()> {
     }
 }
 
+fn build_response(buf: &mut [u8]) -> SbeResult<usize> {
+    let mut command_response = CommandResponseEncoder::default();
+
+    command_response =
+        command_response.wrap(WriteBuf::new(buf), message_header_codec::ENCODED_LENGTH);
+    command_response = command_response.header(0).parent()?;
+
+    command_response.response_code(ResponseCode::OK);
+    command_response.error_message("");
+
+    let limit = command_response.get_limit();
+    return Ok(limit);
+}
+
 fn handle_request(producer: FutureProducer, msg: &zmq::Message) {
     let buf = ReadBuf::new(msg);
     let header = MessageHeaderDecoder::default().wrap(buf, 0);
@@ -76,20 +90,6 @@ fn handle_request(producer: FutureProducer, msg: &zmq::Message) {
             Err((err, err_msg)) => eprintln!("failed kafka publish: {} {:?}", err, err_msg),
         }
     });
-}
-
-fn build_response(buf: &mut [u8]) -> SbeResult<usize> {
-    let mut command_response = CommandResponseEncoder::default();
-
-    command_response =
-        command_response.wrap(WriteBuf::new(buf), message_header_codec::ENCODED_LENGTH);
-    command_response = command_response.header(0).parent()?;
-
-    command_response.response_code(ResponseCode::OK);
-    command_response.error_message("");
-
-    let limit = command_response.get_limit();
-    return Ok(limit);
 }
 
 fn build_transaction_posted(
