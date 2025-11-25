@@ -7,5 +7,6 @@ edition = "2024"
 anyhow = "1.0.100"
 chrono = "0.4.42"
 clap = { version = "4.5.53", features = ["derive"] }
+hdrhistogram = "7.5.4"
 ledger_messages = { path = "../ledger_messages" }
 zmq = "0.10.0"

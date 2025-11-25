@@ -1,6 +1,9 @@
+use std::time::Instant;
+
 use anyhow::Result;
 use chrono::Utc;
 use clap::Parser;
+use hdrhistogram::Histogram;
 use ledger_messages::{
     Encoder, ReadBuf, SbeResult, WriteBuf,
     command_response_codec::CommandResponseDecoder,
@@ -18,17 +21,26 @@ struct Args {
 
     #[arg(long = "amt")]
     amount: i64,
+
+    #[arg(long)]
+    bench: bool,
 }
 
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    let (msg_len, buf) = build_message(&args)?;
     let ctx = zmq::Context::new();
     let requester = ctx.socket(zmq::REQ).expect("failed create requester");
     requester
-        .connect("tcp://0.0.0.0:10000")
+        // .connect("tcp://0.0.0.0:10000")
+        .connect("ipc:///tmp/ledger.sock")
         .expect("error connect");
+
+    if args.bench {
+        return run_benchmark(&requester);
+    }
+
+    let (msg_len, buf) = build_message(&args)?;
     requester.send(&buf[..msg_len], 0).expect("error send");
     println!("sent post_transaction message");
 
@@ -72,6 +84,50 @@ fn handle_response(msg: &zmq::Message) -> Result<()> {
         command_response.response_code(),
         str::from_utf8(err_bytes)?,
     );
+
+    Ok(())
+}
+
+fn run_benchmark(requester: &zmq::Socket) -> Result<()> {
+    // 1. Create a dummy message (reuse same buffer to isolate network cost)
+    // We create a dummy Args just to build the buffer
+    let dummy_args = Args {
+        account_id: 1,
+        transaction_id: 1,
+        amount: 100,
+        bench: true,
+    };
+    let (len, buf) = build_message(&dummy_args)?;
+
+    let mut hist = Histogram::<u64>::new(3).unwrap();
+    let iterations = 10_000;
+
+    println!("warming up (1,000 requests)...");
+    for _ in 0..1_000 {
+        requester.send(&buf[..len], 0)?;
+        let mut msg = zmq::Message::new();
+        requester.recv(&mut msg, 0)?;
+    }
+
+    println!("benchmarking ({} requests)...", iterations);
+    for _ in 0..iterations {
+        let start = Instant::now();
+
+        requester.send(&buf[..len], 0)?;
+        let mut msg = zmq::Message::new();
+        requester.recv(&mut msg, 0)?;
+
+        let duration = start.elapsed().as_micros() as u64;
+        hist.record(duration).expect("value out of range");
+    }
+
+    println!("\n--- Latency Results (microseconds) ---");
+    println!("Min :  {} µs", hist.min());
+    println!("Mean: {:.2} µs", hist.mean());
+    println!("P50 :  {} µs", hist.value_at_quantile(0.50));
+    println!("P99 :  {} µs", hist.value_at_quantile(0.99));
+    println!("Max :  {} µs", hist.max());
+    println!("--------------------------------------");
 
     Ok(())
 }

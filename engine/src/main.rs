@@ -22,7 +22,9 @@ async fn main() -> Result<()> {
     // ========================== run zmq responder
     let ctx = zmq::Context::new();
     let responder = ctx.socket(zmq::REP).unwrap();
-    responder.bind("tcp://*:10000").expect("err connect");
+    responder
+        .bind("ipc:///tmp/ledger.sock")
+        .expect("err connect");
 
     let mut resp_buf = vec![0; 4096];
     let mut msg = zmq::Message::new();

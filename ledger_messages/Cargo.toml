@@ -8,3 +8,10 @@ edition = "2021"
 [lib]
 name = "ledger_messages"
 path = "src/lib.rs"
+
+[dev-dependencies]
+criterion = { version = "0.7.0", features = ["html_reports"] }
+
+[[bench]]
+name = "sbe_benchmark"
+harness = false
