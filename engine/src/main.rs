@@ -23,6 +23,7 @@ async fn main() -> Result<()> {
     let ctx = zmq::Context::new();
     let responder = ctx.socket(zmq::REP).unwrap();
     responder
+        // .bind("tcp://0.0.0.0:10000")
         .bind("ipc:///tmp/ledger.sock")
         .expect("err connect");
 

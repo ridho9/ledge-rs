@@ -85,4 +85,40 @@ The Engine did not write to the Database. It emmits an event (`TransactionPosted
 
 ## Benchmark
 
-TBD
+The system's performance was benchmarked in two key areas: the overhead of the serialization logic in isolation, 
+and the end-to-end latency of the critical "hot path".
+
+### Component Benchmark: SBE Encoding
+
+To establish a performance baseline, the core SBE message encoding process was benchmarked in isolation using the `criterion` library.
+
+| Statistic  | Time (Estimate) |
+| :--------- | :-------------- |
+| **Median** | `10.18 ns`      |
+| **Mean**   | `10.23 ns`      |
+
+**Interpretation:** The results confirm that the SBE encoding process is exceptionally fast, contributing a negligible amount of latency (low double-digit nanoseconds) to the overall system performance.
+
+---
+
+### End-to-End Benchmark: Hot Path Latency
+
+This benchmark measures the full round-trip time (RTT) of the hot path: `Client -> ZMQ -> Engine -> ZMQ -> Client`. 
+Tests were conducted using two different ZMQ transports
+to compare the performance of inter-process communication (IPC) vs. local network communication (TCP).
+
+| Metric           | TCP Socket (`tcp://`) | IPC Socket (`ipc://`) |
+| :--------------- | :-------------------- | :-------------------- |
+| **Mean**         | `97.33 µs`            | `80.33 µs`            |
+| **P50 (Median)** | `95 µs`               | `79 µs`               |
+| **P99**          | `131 µs`              | `109 µs`              |
+| **Min**          | `80 µs`               | `66 µs`               |
+| **Max**          | `387 µs`              | `256 µs`              |
+
+**Interpretation:**
+The results demonstrate that the system achieves **sub-100 microsecond median latency** even over a local TCP socket.
+As expected, using an IPC socket for co-located services on the same machine is significantly faster (~15-20% improvement)
+as it bypasses the overhead of the network stack.
+The P99 latencies are well-controlled, remaining within **1.4x** of the median, 
+indicating a predictable and stable system without significant outliers,
+which is critical for financial applications.
